@@ -19,6 +19,7 @@ void send_seg(int fd,char* buffer); //send segment by segment,delimited by '\n'
 int main(int argc, char **argv) {
     int port = atoi(argv[1]);
     int fd;
+    int num_clients=0;
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket");
         return 1;
@@ -55,11 +56,12 @@ int main(int argc, char **argv) {
         for(int i=0;i<num_events;i++)
         {
             int activefd=events[i].data.fd;
-            if(activefd==fd)
+            if(activefd==fd&&num_clients<32)
             {
                 int clientfd=accept(fd, NULL, NULL);
                 addfd(epfd,clientfd);
                 clients.push_back(clientfd);
+		num_clients++;
             }
             else
             {
